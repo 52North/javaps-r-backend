@@ -1,0 +1,27 @@
+{
+  "properties" : [ {
+    "R_enableBatchStart" : "true"
+  }, {
+    "R_datatypeConfig" : "R/R_Datatype.conf"
+  }, {
+    "R_wdStrategy" : "default"
+  }, {
+    "R_wdName" : "myName"
+  }, {
+    "R_resourceDirectory" : "R/resources"
+  }, {
+    "R_RserveHost" : "localhost"
+  }, {
+    "R_RservePort" : "6311"
+  }, {
+    "R_RserveUser" : "NA"
+  }, {
+    "R_RservePassword" : "NA"
+  }, {
+    "R_scriptDirectory" : "R/scripts"
+  }, {
+    "R_cacheProcesses" : "true"
+  }, {
+    "R_session_memoryLimit" : "1000"
+  } ]
+}
