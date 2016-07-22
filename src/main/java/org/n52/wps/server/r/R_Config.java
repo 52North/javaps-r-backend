@@ -47,7 +47,7 @@ import java.util.Map;
 
 import org.n52.iceland.exception.ows.NoApplicableCodeException;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
-import org.n52.javaps.annotation.ConfigurableClasses;
+import org.n52.javaps.annotation.ConfigurableClass;
 import org.n52.javaps.annotation.Properties;
 import org.n52.wps.server.r.util.RConnector;
 import org.n52.wps.server.r.util.RFileExtensionFilter;
@@ -56,8 +56,10 @@ import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Properties(defaultPropertyFileName="r_config.default.json", propertyFileName="r_config.json")
-public class R_Config extends ConfigurableClasses{
+public class R_Config implements ConfigurableClass{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(R_Config.class);
 
@@ -71,8 +73,6 @@ public class R_Config extends ConfigurableClasses{
 
     private static final String DIR_DELIMITER = ";";
 
-    private RConfigurationModule configModule;
-
     private ArrayList<File> utilsFiles = null;
 
     private final RConnector connector;
@@ -85,20 +85,78 @@ public class R_Config extends ConfigurableClasses{
 
     private final Map<Path, File> utilFileCache = new HashMap<>();
 
+    private static final String enableBatchStartKey = "R_enableBatchStart";
+    private static final String datatypeConfigKey = "R_datatypeConfig";
+    private static final String wdStrategyKey = "R_wdStrategy";
+    private static final String wdNameKey = "R_wdName";
+    private static final String resourceDirectoryKey = "R_resourceDirectory";
+    private static final String scriptDirectoryKey = "R_scriptDirectory";
+    private static final String rServeHostKey = "R_RserveHost";
+    private static final String rServePortKey = "R_RservePort";
+    private static final String rServeUserKey = "R_RserveUser";
+    private static final String rServePasswordKey = "R_RservePassword";
+    private static final String cacheProcessesKey = "R_cacheProcesses";
+    private static final String sessionMemoryLimitKey = "R_session_memoryLimit";
+    private static final String resourceDownloadEnabledKey = "R_enableResourceDownload";
+    private static final String importDownloadEnabledKey = "R_enableImportDownload";
+    private static final String scriptDownloadEnabledKey = "R_enableScriptDownload";
+    private static final String sessionInfoDownloadEnabledKey = "R_enableSessionInfoDownload";
+    private static final String rServeUtilsScriptDirectoryKey = "R_utilsScriptDirectory";
+    
+    private Boolean enableBatchStart;
+    private String datatypeConfig;
+    private String wdStrategy;
+    private String wdName;
+    private String resourceDirectory;
+    private String scriptDirectory;
+    private String rServeHost;    
+    private int rServePort;
+    private String rServeUser;
+    private String rServePassword;
+    private String rServeUtilsScriptDirectory;
+    private Boolean cacheProcesses;
+    private int sessionMemoryLimit;
+    private boolean resourceDownloadEnabled;
+    private boolean importDownloadEnabled;
+    private boolean scriptDownloadEnabled;
+    private boolean sessionInfoDownloadEnabled;
+    
     public R_Config() {
         this.starter = new RStarter();
         this.connector = new RConnector(starter);
-        this.configModule = new RConfigurationModule();
 
+        JsonNode propertyNode = getProperties().get("properties");
+        
+        if(propertyNode != null){
+         
+            try {
+                enableBatchStart = propertyNode.get(enableBatchStartKey).asBoolean();
+                datatypeConfig = propertyNode.get(datatypeConfigKey).asText();
+                wdStrategy = propertyNode.get(wdStrategyKey).asText();
+                wdName = propertyNode.get(wdNameKey).asText();
+                resourceDirectory = propertyNode.get(resourceDirectoryKey).asText();
+                scriptDirectory = propertyNode.get(scriptDirectoryKey).asText();
+                rServeHost = propertyNode.get(rServeHostKey).asText();
+                rServePort = propertyNode.get(rServePortKey).asInt();
+                rServeUser = propertyNode.get(rServeUserKey).asText();
+                rServePassword = propertyNode.get(rServePasswordKey).asText();
+                cacheProcesses = propertyNode.get(cacheProcessesKey).asBoolean();
+                sessionMemoryLimit = propertyNode.get(sessionMemoryLimitKey).asInt();
+                rServeUtilsScriptDirectory = propertyNode.get(rServeUtilsScriptDirectoryKey).asText();
+                resourceDownloadEnabled = propertyNode.get(resourceDownloadEnabledKey).asBoolean();
+                importDownloadEnabled = propertyNode.get(importDownloadEnabledKey).asBoolean();
+                scriptDownloadEnabled = propertyNode.get(scriptDownloadEnabledKey).asBoolean();
+                sessionInfoDownloadEnabled = propertyNode.get(sessionInfoDownloadEnabledKey).asBoolean();    
+            } catch (Exception e) {
+                LOGGER.error("Could not parse properties for class {}", this.getClass().getName());
+                LOGGER.error(e.getMessage());
+            }
+            
+        }else{
+            LOGGER.error("Could not parse properties for class {}", this.getClass().getName());
+        }
+        
         LOGGER.info("NEW {}", this);
-    }
-
-    public void setConfigModule(RConfigurationModule configModule) {
-    	this.configModule = configModule;
-    }
-
-    public RConfigurationModule getConfigModule() {
-        return configModule;
     }
 
    public String resolveFullPath(String pathToResolve) throws OwsExceptionReport {
@@ -117,7 +175,7 @@ public class R_Config extends ConfigurableClasses{
     }
 
     public Collection<Path> getResourceDirectories() {
-        String resourceDirConfigParam = configModule.getResourceDirectory();
+        String resourceDirConfigParam = resourceDirectory;
         Collection<Path> resourceDirectories = new ArrayList<>();
 
         String[] dirs = resourceDirConfigParam.split(DIR_DELIMITER);
@@ -134,7 +192,7 @@ public class R_Config extends ConfigurableClasses{
     }
 
     public Collection<File> getScriptFiles() {
-        String scriptDirConfigParam = getConfigModule().getScriptDirectory();
+        String scriptDirConfigParam = scriptDirectory;
         Collection<File> rScripts = new ArrayList<>();
 
         String[] scriptDirs = scriptDirConfigParam.split(DIR_DELIMITER);
@@ -157,7 +215,7 @@ public class R_Config extends ConfigurableClasses{
     }
 
     public Collection<File> getScriptDirectories() {
-        String scriptDirConfigParam = configModule.getScriptDirectory();
+        String scriptDirConfigParam = scriptDirectory;
         Collection<File> scriptDirectories = new ArrayList<File>();
 
         String[] scriptDirs = scriptDirConfigParam.split(DIR_DELIMITER);
@@ -179,24 +237,23 @@ public class R_Config extends ConfigurableClasses{
     }
 
     private String getRServePassword() {
-        return configModule.getrServePassword();
+        return rServePassword;
     }
 
     private String getRServeUser() {
-        return configModule.getRServeUser();
+        return rServeUser;
     }
 
-    private int getRServePort() {
-        String port = configModule.getRServePort();
-        return Integer.parseInt(port);
+    private int getRServePort() {        
+        return rServePort;
     }
 
     public String getRServeHost() {
-        return configModule.getRServeHost();
+        return rServeHost;
     }
 
     public boolean getEnableBatchStart() {
-    	return configModule.isEnableBatchStart();
+    	return enableBatchStart;
     }
 
     public URL getProcessDescriptionURL(String processWKN) {
@@ -211,14 +268,14 @@ public class R_Config extends ConfigurableClasses{
     }
 
     public boolean isCacheProcesses() {
-        return configModule.isCacheProcesses();
+        return cacheProcesses;
     }
 
     public Collection<File> getUtilsFiles() {
         if (this.utilsFiles == null) {
             this.utilsFiles = new ArrayList<File>();
             Path basedir = getBaseDir();
-            String configVariable = configModule.getRServeUtilsScriptsDirectory();
+            String configVariable = rServeUtilsScriptDirectory;
             if (configVariable != null) {
                 String[] configVariableDirs = configVariable.split(DIR_DELIMITER);
                 for (String s : configVariableDirs) {
@@ -330,18 +387,34 @@ public class R_Config extends ConfigurableClasses{
     }
 
     public boolean isResourceDownloadEnabled() {
-        return configModule.isResourceDownloadEnabled();
+        return resourceDownloadEnabled;
     }
 
     public boolean isImportDownloadEnabled() {
-        return configModule.isImportDownloadEnabled();
+        return importDownloadEnabled;
     }
 
     public boolean isScriptDownloadEnabled() {
-        return configModule.isScriptDownloadEnabled();
+        return scriptDownloadEnabled;
     }
 
     public boolean isSessionInfoLinkEnabled() {
-        return configModule.isSessionInfoDownloadEnabled();
+        return sessionInfoDownloadEnabled;
+    }
+
+    public String getDatatypeConfig() {
+        return datatypeConfig;
+    }
+
+    public int getSessionMemoryLimit() {
+        return sessionMemoryLimit;
+    }
+
+    public String getWdStrategy() {
+        return wdStrategy;
+    }
+
+    public String getWdName() {
+        return wdName;
     }
 }

@@ -360,12 +360,12 @@ public class RWorkspaceManager {
         String originalWD = connection.eval("getwd()").asString();
 
         // Set R working directory according to configuration
-        String strategy = config.getConfigModule().getWdStrategy();
+        String strategy = config.getWdStrategy();
         boolean isRserveOnLocalhost = this.config.getRServeHost().equalsIgnoreCase("localhost");
         String workDirNameSetting = null;
 
         try {
-            workDirNameSetting = config.resolveFullPath(config.getConfigModule().getWdName());
+            workDirNameSetting = config.resolveFullPath(config.getWdName());
         }
         catch (OwsExceptionReport e) {
             log.warn("R Working directory does not exist. This will be an issue if the variable is used. The current strategy is '{}'.",

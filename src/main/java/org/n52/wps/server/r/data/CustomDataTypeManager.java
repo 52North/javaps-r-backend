@@ -81,7 +81,7 @@ public class CustomDataTypeManager {
     }
 
     private void addCustomDataTypesFromConfigFile() throws IOException, OwsExceptionReport {
-        String file = config.resolveFullPath(config.getConfigModule().getDatatypeConfig());
+        String file = config.resolveFullPath(config.getDatatypeConfig());
         this.configFile = new File(file);
         if (getConfigFile() == null) {
             LOGGER.error("Config file not availailable at '{}'. Costum R data types cannot be registered.", file);

@@ -118,7 +118,7 @@ public class RSessionManager {
         // configure memory limit
         StringBuilder cmd = new StringBuilder();
 
-        String memoryLimit = config.getConfigModule().getSessionMemoryLimit();
+        String memoryLimit = "" + config.getSessionMemoryLimit();
         cmd.append("memory.limit(");
         cmd.append(memoryLimit);
         cmd.append(")");
