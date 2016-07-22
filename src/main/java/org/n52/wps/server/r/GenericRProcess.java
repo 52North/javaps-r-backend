@@ -38,18 +38,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import org.n52.iceland.exception.ows.NoApplicableCodeException;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.ows.OwsCode;
-import org.n52.iceland.ogc.wps.description.ProcessDescription;
 import org.n52.javaps.algorithm.AbstractAlgorithm;
-import org.n52.javaps.algorithm.AbstractObservable;
 import org.n52.javaps.algorithm.ExecutionException;
 import org.n52.javaps.algorithm.ProcessInputs;
-import org.n52.javaps.algorithm.annotation.Execute;
 import org.n52.javaps.description.TypedProcessDescription;
 import org.n52.javaps.engine.ProcessExecutionContext;
 import org.n52.javaps.io.Data;
@@ -73,7 +68,6 @@ import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
@@ -112,13 +106,16 @@ public class GenericRProcess extends AbstractAlgorithm {
     
     private String wkn;
     
-    public GenericRProcess(String wellKnownName, R_Config config, RDataTypeRegistry dataTypeRegistry, String baseUrl, ScriptFileRepository scriptRepo, RAnnotationParser parser) {
+    private RProcessDescriptionCreator creator;
+    
+    public GenericRProcess(String wellKnownName, R_Config config, RDataTypeRegistry dataTypeRegistry, ResourceUrlGenerator urlGenerator, ScriptFileRepository scriptRepo, RAnnotationParser parser, RProcessDescriptionCreator creator) {
         this.wkn = wellKnownName;
         this.config = config;
-        this.urlGenerator = new ResourceUrlGenerator(baseUrl);
+        this.urlGenerator = urlGenerator;
         iohandler = new RIOHandler(dataTypeRegistry);
         this.scriptRepo = scriptRepo;
         this.parser = parser;
+        this.creator = creator;
         log.trace("NEW {}", this);
     }
 
@@ -161,12 +158,6 @@ public class GenericRProcess extends AbstractAlgorithm {
             this.annotations = this.parser.parseAnnotationsfromScript(rScriptStream);
 
             // submits annotation with process informations to ProcessdescriptionCreator:
-            RProcessDescriptionCreator creator = new RProcessDescriptionCreator(wkn,
-                                                                                config.isResourceDownloadEnabled(),
-                                                                                config.isImportDownloadEnabled(),
-                                                                                config.isScriptDownloadEnabled(),
-                                                                                config.isSessionInfoLinkEnabled(),
-                                                                                urlGenerator);
             TypedProcessDescription doc = creator.createDescribeProcessType(this.annotations, wkn);
 
 //            if (log.isTraceEnabled()) {

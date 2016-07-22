@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.n52.iceland.exception.ows.NoApplicableCodeException;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
@@ -105,15 +106,16 @@ public class RResource {
 
     private static final String CHARSET_STRING = "; charset=utf-8";
 
+    @Inject
     private ResourceUrlGenerator urlGenerator;
 
-    @Autowired
+    @Inject
     private R_Config config;
 
-    @Autowired
+    @Inject
     private ScriptFileRepository scriptRepo;
 
-    @Autowired
+    @Inject
     private ResourceFileRepository resourceRepo;
 
     public RResource() {
@@ -122,7 +124,6 @@ public class RResource {
 
     @PostConstruct
     public void init() {
-        this.urlGenerator = new ResourceUrlGenerator("");
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE + CHARSET_STRING)

@@ -38,25 +38,31 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.FilenameUtils;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.javaps.algorithm.AlgorithmRepository;
 import org.n52.javaps.algorithm.IAlgorithm;
 import org.n52.javaps.description.TypedProcessDescription;
+import org.n52.javaps.io.InputHandlerRepository;
+import org.n52.javaps.io.OutputHandlerRepository;
+import org.n52.javaps.io.literal.LiteralTypeRepository;
 import org.n52.wps.server.r.data.CustomDataTypeManager;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.info.RProcessInfo;
 import org.n52.wps.server.r.metadata.RAnnotationParser;
+import org.n52.wps.server.r.metadata.RProcessDescriptionCreator;
 import org.n52.wps.server.r.syntax.RAnnotation;
 import org.n52.wps.server.r.syntax.RAnnotationException;
 import org.n52.wps.server.r.syntax.RAnnotationType;
 import org.n52.wps.server.r.util.InvalidRScriptException;
+import org.n52.wps.server.r.util.ResourceUrlGenerator;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * A repository to retrieve the available algorithms.
@@ -85,25 +91,31 @@ public class RAlgorithmRepository implements AlgorithmRepository {
 
     private final Map<String, RProcessInfo> processInfos = new HashMap<>();
 
-    @Autowired
+    @Inject
     private R_Config config;
 
-    @Autowired
+    @Inject
     private ScriptFileRepository scriptRepo;
 
-    @Autowired
+    @Inject
     private RAnnotationParser parser;
 
-    @Autowired
+    @Inject
     private ResourceFileRepository resourceRepo;
 
     // needed to autowire before script registration starts
-    @Autowired 
+    @Inject 
     private CustomDataTypeManager customDataTypes;
 
-    @Autowired
+    @Inject
     private RDataTypeRegistry dataTypeRegistry;
-
+    
+    @Inject
+    private RProcessDescriptionCreator descriptionCreator;
+    
+    @Inject
+    private ResourceUrlGenerator resourceUrlGenerator;
+    
     public RAlgorithmRepository() {
         LOGGER.info("NEW {}", this);
     }
@@ -262,7 +274,7 @@ public class RAlgorithmRepository implements AlgorithmRepository {
 
     private GenericRProcess createRProcess(String wellKnownName) {
         LOGGER.debug("Loading algorithm '{}'", wellKnownName);
-        GenericRProcess algorithm = new GenericRProcess(wellKnownName, config, dataTypeRegistry, "", scriptRepo, parser);//TODO
+        GenericRProcess algorithm = new GenericRProcess(wellKnownName, config, dataTypeRegistry, resourceUrlGenerator, scriptRepo, parser, descriptionCreator);//TODO
 //        SpringIntegrationHelper.autowireBean(algorithm);
         /*
          * weak inheritance implementation. When using injected singleton beans
@@ -274,6 +286,7 @@ public class RAlgorithmRepository implements AlgorithmRepository {
     }
 
     private void validateProcessDescription(GenericRProcess algorithm) {
+        //TODO
 //        if ( !algorithm.processDescriptionIsValid(DESCRPTION_VERSION_FOR_VALIDATION)) {
 //            // collect the errors
 //            ProcessDescriptionType description = (ProcessDescriptionType) algorithm.getDescription().getProcessDescriptionType(DESCRPTION_VERSION_FOR_VALIDATION);

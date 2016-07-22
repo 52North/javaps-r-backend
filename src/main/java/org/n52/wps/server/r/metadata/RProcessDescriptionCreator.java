@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import org.n52.iceland.exception.ows.NoApplicableCodeException;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.iceland.lifecycle.Constructable;
 import org.n52.iceland.ogc.ows.OwsAnyValue;
 import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.iceland.ogc.ows.OwsDomainMetadata;
@@ -70,6 +71,7 @@ import org.n52.javaps.io.OutputHandlerRepository;
 import org.n52.javaps.io.complex.ComplexData;
 import org.n52.javaps.io.data.binding.complex.GenericFileDataBinding;
 import org.n52.javaps.io.literal.LiteralTypeRepository;
+import org.n52.wps.server.r.R_Config;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.syntax.RAnnotation;
 import org.n52.wps.server.r.syntax.RAnnotationException;
@@ -79,7 +81,7 @@ import org.n52.wps.server.r.util.ResourceUrlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RProcessDescriptionCreator {
+public class RProcessDescriptionCreator implements Constructable{
 
     public static final String SCRIPT_LINK_TITLE = "R Script";
 
@@ -93,40 +95,37 @@ public class RProcessDescriptionCreator {
 
     private static final Logger log = LoggerFactory.getLogger(RProcessDescriptionCreator.class);
 
-    private final String id;
+    private boolean resourceDownloadEnabled;
 
-    private final boolean resourceDownloadEnabled;
+    private boolean importDownloadEnabled;
 
-    private final boolean importDownloadEnabled;
+    private boolean scriptDownloadEnabled;
 
-    private final boolean scriptDownloadEnabled;
+    private boolean sessionInfoLinkEnabled;
 
-    private final boolean sessionInfoLinkEnabled;
-
-    private final ResourceUrlGenerator urlGenerator;
-    
+    @Inject
+    private ResourceUrlGenerator urlGenerator;
     
     @Inject
-    InputHandlerRepository parserRepository;
+    private InputHandlerRepository parserRepository;
+    
     @Inject
-    OutputHandlerRepository generatorRepository;
+    private OutputHandlerRepository generatorRepository;
+    
     @Inject
-    LiteralTypeRepository literalTypeRepository;
+    private LiteralTypeRepository literalTypeRepository;
 
-    public RProcessDescriptionCreator(String publicProcessId,
-                                      boolean resourceDownload,
-                                      boolean importDownload,
-                                      boolean scriptDownload,
-                                      boolean sessionInfoLink,
-                                      ResourceUrlGenerator urlGenerator) {
-        this.id = publicProcessId;
-        this.resourceDownloadEnabled = resourceDownload;
-        this.importDownloadEnabled = importDownload;
-        this.scriptDownloadEnabled = scriptDownload;
-        this.sessionInfoLinkEnabled = sessionInfoLink;
-        this.urlGenerator = urlGenerator;
+    @Inject
+    private R_Config config;    
 
-        log.debug("NEW {}", this);
+
+    @Override
+    public void init() {
+        this.resourceDownloadEnabled = config.isResourceDownloadEnabled();
+        this.importDownloadEnabled = config.isImportDownloadEnabled();
+        this.scriptDownloadEnabled = config.isScriptDownloadEnabled();
+        this.sessionInfoLinkEnabled = config.isSessionInfoLinkEnabled();
+        log.debug("{} initialized.", this);        
     }
 
     /**
@@ -443,8 +442,13 @@ public class RProcessDescriptionCreator {
         
         OwsDomainMetadata dataType = new OwsDomainMetadata(dataTypeString);
 
+        OwsValue defaultValue = null;
+        
         String def = annotation.getStringValue(RAttribute.DEFAULT_VALUE);
-        OwsValue defaultValue = new OwsValue(def);
+        
+        if(def != null){
+            defaultValue = new OwsValue(def);
+        }
         
         OwsPossibleValues possibleValues = OwsAnyValue.instance();
         OwsDomainMetadata uom = new OwsDomainMetadata(" ");
@@ -647,8 +651,6 @@ public class RProcessDescriptionCreator {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("RProcessDescriptionCreator [");
-        if (id != null)
-            builder.append("id=").append(id).append(", ");
         builder.append("resourceDownloadEnabled=").append(resourceDownloadEnabled).append(", importDownloadEnabled=").append(importDownloadEnabled).append("]");
         return builder.toString();
     }

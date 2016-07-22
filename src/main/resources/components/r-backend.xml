@@ -34,5 +34,7 @@
     <bean id="resourcefilerepository" class="org.n52.wps.server.r.ResourceFileRepository"/>
     <bean id="rresource" class="org.n52.wps.server.r.RResource"/>
     <bean id="scriptfilerepository" class="org.n52.wps.server.r.ScriptFileRepository"/>
+    <bean id="resourceUrlGenerator" class="org.n52.wps.server.r.util.ResourceUrlGenerator"/>
+    <bean id="rProcessDescriptionCreator" class="org.n52.wps.server.r.metadata.RProcessDescriptionCreator"/>
 
 </beans>

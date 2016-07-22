@@ -43,6 +43,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.inject.Inject;
+
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.wps.description.ProcessDescription;
 import org.n52.wps.server.r.R_Config;
@@ -74,18 +76,20 @@ public class RAnnotationParser {
 
     private static Logger LOGGER = LoggerFactory.getLogger(RAnnotationParser.class);
 
-    @Autowired
+    @Inject
     private RDataTypeRegistry dataTypeRegistry;
 
-    @Autowired
+    @Inject
     private R_Config config;
 
+    @Inject
+    private RProcessDescriptionCreator descriptionCreator;
+    
+    @Inject
     private ResourceUrlGenerator urlGenerator;
 
     public RAnnotationParser() {
         // FIXME use setting mechanism to get the base url
-//        this.urlGenerator = urlGenerator;
-        this.urlGenerator = new ResourceUrlGenerator("");
         LOGGER.debug("New {}", this);
     }
 
@@ -215,12 +219,6 @@ public class RAnnotationParser {
 
         try {
             // try to create process description from annotations
-            RProcessDescriptionCreator descriptionCreator = new RProcessDescriptionCreator(identifier,
-                    config.isResourceDownloadEnabled(),
-                    config.isImportDownloadEnabled(),
-                    config.isScriptDownloadEnabled(),
-                    config.isSessionInfoLinkEnabled(),
-                    urlGenerator);
             ProcessDescription processType = descriptionCreator.createDescribeProcessType(annotations,
                     identifier);
 

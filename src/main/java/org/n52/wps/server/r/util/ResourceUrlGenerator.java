@@ -33,8 +33,14 @@ import static org.n52.wps.server.r.RResource.R_ENDPOINT;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.inject.Inject;
+
+import org.n52.iceland.config.SettingType;
+import org.n52.iceland.config.SettingsService;
 import org.n52.iceland.exception.ows.NoApplicableCodeException;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.iceland.lifecycle.Constructable;
+import org.n52.iceland.service.ServiceSettings;
 import org.n52.wps.server.r.RResource;
 import org.n52.wps.server.r.data.R_Resource;
 import org.slf4j.Logger;
@@ -44,7 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author <a href="mailto:d.nuest@52north.org">Daniel Nüst</a>
  */
-public class ResourceUrlGenerator {
+public class ResourceUrlGenerator implements Constructable{
 
     protected static final Logger log = LoggerFactory.getLogger(ResourceUrlGenerator.class);
 
@@ -52,6 +58,9 @@ public class ResourceUrlGenerator {
 
     private static URL ERROR_SESSION_INFO_URL;
 
+    @Inject
+    private SettingsService settingsService;
+    
     static {
         try {
             ERROR_SESSION_INFO_URL = new URL("http://internal.error/sessionInfo.not.available");
@@ -60,11 +69,7 @@ public class ResourceUrlGenerator {
         }
     }
 
-    private final String baseURL;
-
-    public ResourceUrlGenerator(String baseURL) {
-        this.baseURL = baseURL;
-    }
+    private String baseURL;
 
     /**
      *
@@ -139,6 +144,11 @@ public class ResourceUrlGenerator {
 
     public String internalEncode(String s) {
         return s.replace("/", SLASH_REPLACEMENT);
+    }
+
+    @Override
+    public void init() {
+        this.baseURL = settingsService.getSetting(ServiceSettings.SERVICE_URL).getValue().toString().replace("service", "");        
     }
 
 }
