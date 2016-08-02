@@ -60,7 +60,7 @@ public class ResourceUrlGenerator implements Constructable{
 
     @Inject
     private SettingsService settingsService;
-    
+
     static {
         try {
             ERROR_SESSION_INFO_URL = new URL("http://internal.error/sessionInfo.not.available");
@@ -106,7 +106,7 @@ public class ResourceUrlGenerator implements Constructable{
 
     /**
      *
-     * @param wkn
+     * @param resource
      *        well-known name for a process
      * @return a publicly available URL to retrieve the imported script
      */
@@ -148,7 +148,7 @@ public class ResourceUrlGenerator implements Constructable{
 
     @Override
     public void init() {
-        this.baseURL = settingsService.getSetting(ServiceSettings.SERVICE_URL).getValue().toString().replace("service", "");        
+        this.baseURL = settingsService.getSetting(ServiceSettings.SERVICE_URL).getValue().toString().replace("service", "");
     }
 
 }

@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -46,6 +45,7 @@ import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.javaps.algorithm.ProcessInputs;
 import org.n52.javaps.io.Data;
+import org.n52.javaps.io.DecodingException;
 import org.n52.wps.server.r.FilteredRConnection;
 import org.n52.wps.server.r.RConstants;
 import org.n52.wps.server.r.RWPSSessionVariables;
@@ -124,8 +124,9 @@ public class RWorkspaceManager {
 
         log.debug("Deleting work directory {}", originalWorkDir);
         boolean b = this.workspace.deleteCurrentAndSetWorkdir(this.connection, originalWorkDir);
-        if ( !b)
+        if ( !b){
             log.debug("Could not delete workdir (completely) with R, remaining files: {}", this.workspace.listFiles());
+        }
     }
 
     public void cleanUpWithWPS() {
@@ -136,14 +137,16 @@ public class RWorkspaceManager {
                 // try to delete current local workdir - folder
                 File workdir = new File(workspace.getPath());
 
-                if ( !workdir.exists())
+                if ( !workdir.exists()){
                     return;
+                }
 
                 boolean deleted = deleteRecursive(workdir);
-                if ( !deleted)
+                if ( !deleted){
                     log.warn("Failed to delete temporary WPS Workdirectory '{}', remaining files: {}",
                              workdir.getAbsolutePath(),
                              this.workspace.listFiles());
+                }
             }
         }
         catch (RuntimeException e) {
@@ -283,8 +286,9 @@ public class RWorkspaceManager {
         // empty list:
         connection.filteredEval(RWPSSessionVariables.SCRIPT_RESOURCES + " <- " + wpsScriptResources);
         for (RAnnotation annotation : resources) {
-            if ( !annotation.getType().equals(RAnnotationType.RESOURCE)) // skip non-resource annoations
+            if ( !annotation.getType().equals(RAnnotationType.RESOURCE)){ // skip non-resource annoations
                 continue;
+            }
 
             wpsScriptResources = annotation.getStringValue(RAttribute.NAMED_LIST_R_SYNTAX);
             // concatenate:
@@ -307,8 +311,9 @@ public class RWorkspaceManager {
             Object resObject = resourceAnnotation.getObjectValue(RAttribute.NAMED_LIST);
             Collection< ? > resourceCollection;
 
-            if (resObject instanceof Collection< ? >)
+            if (resObject instanceof Collection< ? >){
                 resourceCollection = (Collection< ? >) resObject;
+            }
             else {
                 log.warn("Unsupported resource object: {}", resObject);
                 continue;
@@ -316,8 +321,9 @@ public class RWorkspaceManager {
 
             for (Object element : resourceCollection) {
                 R_Resource resource;
-                if (element instanceof R_Resource)
+                if (element instanceof R_Resource){
                     resource = (R_Resource) element;
+                }
                 else {
                     log.warn("Unsupported resource element: {}", element);
                     continue;
@@ -400,7 +406,7 @@ public class RWorkspaceManager {
 
     /**
      * @return the result has including sessionInfo() and warnings()
-     * @throws REXPMismatchException
+     * @throws RAnnotationException
      */
     public HashMap<String, Data<?>> saveOutputValues(Collection<RAnnotation> outAnnotations) throws RAnnotationException,
             OwsExceptionReport {
@@ -434,7 +440,7 @@ public class RWorkspaceManager {
 
                 log.debug("Output for {} is {} with payload {}", resultId, output, output.getPayload());
             }
-            catch (RserveException | IOException | REXPMismatchException e) {
+            catch (RserveException | IOException | REXPMismatchException | DecodingException e) {
                 log.error("Could not create output for {}", resultId, e);
             }
         }

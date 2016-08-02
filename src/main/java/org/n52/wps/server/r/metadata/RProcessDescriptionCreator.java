@@ -105,18 +105,18 @@ public class RProcessDescriptionCreator implements Constructable{
 
     @Inject
     private ResourceUrlGenerator urlGenerator;
-    
+
     @Inject
     private InputHandlerRepository parserRepository;
-    
+
     @Inject
     private OutputHandlerRepository generatorRepository;
-    
+
     @Inject
     private LiteralTypeRepository literalTypeRepository;
 
     @Inject
-    private R_Config config;    
+    private R_Config config;
 
 
     @Override
@@ -125,41 +125,39 @@ public class RProcessDescriptionCreator implements Constructable{
         this.importDownloadEnabled = config.isImportDownloadEnabled();
         this.scriptDownloadEnabled = config.isScriptDownloadEnabled();
         this.sessionInfoLinkEnabled = config.isSessionInfoLinkEnabled();
-        log.debug("{} initialized.", this);        
+        log.debug("{} initialized.", this);
     }
 
     /**
      * Usually called from @GenericRProcess
-     * 
+     *
      * @param annotations
      *        contain all process description information
      * @param identifier
      *        Process identifier
-     * @param fileUrl
      * @return
-     * @throws ExceptionReport
      * @throws RAnnotationException
      */
     public TypedProcessDescription createDescribeProcessType(List<RAnnotation> annotations, String identifier) throws OwsExceptionReport, RAnnotationException {
         log.debug("Creating Process Description for " + identifier);
 
         try {
-            
+
             RAnnotation processAnnotation = getAnnotationOfType(annotations, RAnnotationType.DESCRIPTION);
-            
+
             String abstr = processAnnotation.getStringValue(RAttribute.ABSTRACT);
             String title = processAnnotation.getStringValue(RAttribute.TITLE);
             String version = processAnnotation.getStringValue(RAttribute.VERSION);
-            
+
             if (version == null || version.isEmpty()){
                 version = DEFAULT_VERSION;
             }
-            
+
             Set<OwsKeyword> keywords = new HashSet<>();
             Set<OwsMetadata> metadata = new HashSet<>();
             OwsCode owsCodeId = new OwsCode(identifier);
             OwsLanguageString titleLanguageString = new OwsLanguageString(title);
-            
+
             OwsLanguageString abstractLanguageString = null;
 
             if(abstr != null && !abstr.isEmpty()){
@@ -168,10 +166,10 @@ public class RProcessDescriptionCreator implements Constructable{
 
             Set<TypedProcessInputDescription<?>> inputs = new HashSet<>();
             Set<TypedProcessOutputDescription<?>> outputs = new HashSet<>();
-            
+
             for (RAnnotation annotation : annotations) {
                 log.trace("Adding information to process description based on annotation {}", annotation);
-                
+
                 switch (annotation.getType()) {
                     case INPUT:
                         addInput(inputs, annotation);
@@ -202,9 +200,9 @@ public class RProcessDescriptionCreator implements Constructable{
                         break;
                 }
             }
-            
+
             TypedProcessDescription tpdesc = new TypedProcessDescriptionImpl(owsCodeId, titleLanguageString, abstractLanguageString, keywords, metadata, inputs, outputs, version, true, true);
-            
+
 //            ProcessDescription pdt = new TypedProcessDescriptionImpl(id2, title2, abstr2, keywords, metadata, inputs, outputs, version, true, true);
 
 
@@ -269,10 +267,10 @@ public class RProcessDescriptionCreator implements Constructable{
                 return annotation;
             }
         }
-        
+
         return null;
     }
-    
+
 //    private void addMetadataResources(ProcessDescriptionType pdt, RAnnotation annotation) {
 //        String title = null;
 //        String href = null;
@@ -388,11 +386,11 @@ public class RProcessDescriptionCreator implements Constructable{
 //    }
 
     private void addInput(Set<TypedProcessInputDescription<?>> inputs, RAnnotation annotation) throws RAnnotationException {
-        
+
         String identifier = annotation.getStringValue(RAttribute.IDENTIFIER);
 
         OwsCode owsCode = new OwsCode(identifier);
-        
+
         // title is optional in the annotation, therefore it could be null, but it is required in the
         // description - then set to ID
         String title = annotation.getStringValue(RAttribute.TITLE);
@@ -401,27 +399,27 @@ public class RProcessDescriptionCreator implements Constructable{
         }
 
         OwsLanguageString titleLanguageString = new OwsLanguageString(title);
-        
+
         OwsLanguageString abstractLanguageString = null;
-        
+
         String abstr = annotation.getStringValue(RAttribute.ABSTRACT);
 
         if(abstr != null && !abstr.isEmpty()){
             abstractLanguageString = new OwsLanguageString(abstr);
         }
-        
+
         Set<OwsKeyword> keywords = new HashSet<>();
         Set<OwsMetadata> metadata = new HashSet<>();
-        
+
         String min = annotation.getStringValue(RAttribute.MIN_OCCURS);
         BigInteger minOccurs = BigInteger.valueOf(Long.parseLong(min));
 
         String max = annotation.getStringValue(RAttribute.MAX_OCCURS);
         BigInteger maxOccurs = BigInteger.valueOf(Long.parseLong(max));
-        
+
         InputOccurence inputOccurence = new InputOccurence(minOccurs, maxOccurs);
-        
-        if (annotation.isComplex()) {            
+
+        if (annotation.isComplex()) {
             addComplexInput(owsCode, titleLanguageString, abstractLanguageString, keywords, metadata, inputOccurence, annotation, inputs);
         }
         else {
@@ -434,28 +432,28 @@ public class RProcessDescriptionCreator implements Constructable{
             OwsLanguageString abstrakt,
             Set<OwsKeyword> keywords,
             Set<OwsMetadata> metadata,
-            InputOccurence occurence, RAnnotation annotation, Set<TypedProcessInputDescription<?>> inputs) throws RAnnotationException {    
-        
+            InputOccurence occurence, RAnnotation annotation, Set<TypedProcessInputDescription<?>> inputs) throws RAnnotationException {
+
         Set<LiteralDataDomain> supportedLiteralDataDomains = new HashSet<>();
 
         String dataTypeString = annotation.getProcessDescriptionType();
-        
+
         OwsDomainMetadata dataType = new OwsDomainMetadata(dataTypeString);
 
         OwsValue defaultValue = null;
-        
+
         String def = annotation.getStringValue(RAttribute.DEFAULT_VALUE);
-        
+
         if(def != null){
             defaultValue = new OwsValue(def);
         }
-        
+
         OwsPossibleValues possibleValues = OwsAnyValue.instance();
         OwsDomainMetadata uom = new OwsDomainMetadata(" ");
         LiteralDataDomain defaultLiteralDataDomain = new LiteralDataDomainImpl(possibleValues, dataType, uom, defaultValue);
-        
+
         TypedLiteralInputDescription literalInputDescription = new TypedLiteralInputDescriptionImpl(id, title, abstrakt, keywords, metadata, occurence, defaultLiteralDataDomain, supportedLiteralDataDomains, RDataTypeRegistry.getAbstractXSDLiteralTypeforLiteralRDataType(dataTypeString));
-        
+
         inputs.add(literalInputDescription);
     }
 
@@ -464,15 +462,15 @@ public class RProcessDescriptionCreator implements Constructable{
             Set<OwsKeyword> keywords,
             Set<OwsMetadata> metadata,
             InputOccurence occurence, RAnnotation annotation, Set<TypedProcessInputDescription<?>> inputs) throws RAnnotationException {
-                        
+
         String mimeType = annotation.getProcessDescriptionType();
         String encoding = annotation.getStringValue(RAttribute.ENCODING);
         String schema = annotation.getStringValue(RAttribute.SCHEMA);
 
         Format defaultFormat = new Format(mimeType, encoding, schema);
-        
+
         Set<Format> supportedFormats = new HashSet<>();
-        
+
         Class< ? extends Data<?>> iClass = annotation.getDataClass();
         if (iClass.equals(GenericFileDataBinding.class)) {
             String supportedMimeType = annotation.getProcessDescriptionType();
@@ -480,9 +478,9 @@ public class RProcessDescriptionCreator implements Constructable{
             String supportedSchema = annotation.getStringValue(RAttribute.SCHEMA);
 
             Format supportedFormat = new Format(supportedMimeType, supportedEncoding, supportedSchema);
-            
+
             supportedFormats.add(supportedFormat);
-            
+
             //also add format with standard encoding
             if(encoding.equals("base64")){
                 supportedFormat = new Format(supportedMimeType, "", supportedSchema);
@@ -492,9 +490,9 @@ public class RProcessDescriptionCreator implements Constructable{
         else {
             supportedFormats = addSupportedInputFormats(iClass);
         }
-        
+
         TypedComplexInputDescription complexInputDescription = new TypedComplexInputDescriptionImpl(id, title, abstrakt, keywords, metadata, occurence, defaultFormat, supportedFormats, null, (Class<? extends ComplexData<?>>) iClass);
-        
+
         inputs.add(complexInputDescription);
     }
 
@@ -502,7 +500,7 @@ public class RProcessDescriptionCreator implements Constructable{
         String identifier = annotation.getStringValue(RAttribute.IDENTIFIER);
 
         OwsCode owsCode = new OwsCode(identifier);
-        
+
         // title is optional in the annotation, therefore it could be null, but it is required in the
         // description - then set to ID
         String title = annotation.getStringValue(RAttribute.TITLE);
@@ -511,15 +509,15 @@ public class RProcessDescriptionCreator implements Constructable{
         }
 
         OwsLanguageString titleLanguageString = new OwsLanguageString(title);
-        
+
         OwsLanguageString abstractLanguageString = null;
-        
+
         String abstr = annotation.getStringValue(RAttribute.ABSTRACT);
 
         if(abstr != null && !abstr.isEmpty()){
             abstractLanguageString = new OwsLanguageString(abstr);
         }
-        
+
         Set<OwsKeyword> keywords = new HashSet<>();
         Set<OwsMetadata> metadata = new HashSet<>();
 
@@ -535,36 +533,36 @@ public class RProcessDescriptionCreator implements Constructable{
             OwsLanguageString abstrakt,
             Set<OwsKeyword> keywords,
             Set<OwsMetadata> metadata, RAnnotation annotation, Set<TypedProcessOutputDescription<?>> outputs) throws RAnnotationException {
-         
+
         Set<LiteralDataDomain> supportedLiteralDataDomains = new HashSet<>();
-        
+
         String dataTypeString = annotation.getProcessDescriptionType();
-        
+
         OwsDomainMetadata dataType = new OwsDomainMetadata(dataTypeString);
 
         OwsPossibleValues possibleValues = OwsAnyValue.instance();
         OwsDomainMetadata uom = new OwsDomainMetadata(" ");
         LiteralDataDomain defaultLiteralDataDomain = new LiteralDataDomainImpl(possibleValues, dataType, uom, null);
-                
+
         TypedLiteralOutputDescription literalInputDescription = new TypedLiteralOutputDescriptionImpl(id, title, abstrakt, keywords, metadata, defaultLiteralDataDomain, supportedLiteralDataDomains, RDataTypeRegistry.getAbstractXSDLiteralTypeforLiteralRDataType(dataTypeString));
-        
-        outputs.add(literalInputDescription);        
-        
+
+        outputs.add(literalInputDescription);
+
     }
 
     private void addComplexOutput(OwsCode id,OwsLanguageString title,
             OwsLanguageString abstrakt,
             Set<OwsKeyword> keywords,
             Set<OwsMetadata> metadata, RAnnotation annotation, Set<TypedProcessOutputDescription<?>> outputs) throws RAnnotationException {
-        
+
         String mimeType = annotation.getProcessDescriptionType();
         String encoding = annotation.getStringValue(RAttribute.ENCODING);
         String schema = annotation.getStringValue(RAttribute.SCHEMA);
 
         Format defaultFormat = new Format(mimeType, encoding, schema);
-        
+
         Set<Format> supportedFormats = new HashSet<>();
-        
+
         Class< ? extends Data<?>> iClass = annotation.getDataClass();
         if (iClass.equals(GenericFileDataBinding.class)) {
             String supportedMimeType = annotation.getProcessDescriptionType();
@@ -572,9 +570,9 @@ public class RProcessDescriptionCreator implements Constructable{
             String supportedSchema = annotation.getStringValue(RAttribute.SCHEMA);
 
             Format supportedFormat = new Format(supportedMimeType, supportedEncoding, supportedSchema);
-            
+
             supportedFormats.add(supportedFormat);
-            
+
             //also add format with standard encoding
             if(encoding.equals("base64")){
                 supportedFormat = new Format(supportedMimeType, "", supportedSchema);
@@ -584,9 +582,9 @@ public class RProcessDescriptionCreator implements Constructable{
         else {
             supportedFormats = addSupportedOutputFormats(iClass);
         }
-        
+
         TypedComplexOutputDescription complexInputDescription = new TypedComplexOutputDescriptionImpl(id, title, abstrakt, keywords, metadata, defaultFormat, supportedFormats, null, (Class<? extends ComplexData<?>>) iClass);
-        
+
         outputs.add(complexInputDescription);
 
     }
@@ -596,9 +594,9 @@ public class RProcessDescriptionCreator implements Constructable{
      */
     private Set<Format> addSupportedOutputFormats(Class< ? extends Data<?>> supportedClass) {
         List<OutputHandler> foundGenerators = new ArrayList<>();
-        
+
         Set<Format> result = new HashSet<>();
-        
+
         for (OutputHandler generator : generatorRepository.getOutputHandlers()) {
             Set<Class<? extends Data<?>>> supportedClasses = generator.getSupportedBindings();
             for (Class< ? > clazz : supportedClasses) {
@@ -623,11 +621,11 @@ public class RProcessDescriptionCreator implements Constructable{
      * Searches all available datahandlers for supported formats
      */
     private Set<Format> addSupportedInputFormats(Class< ? extends Data<?>> supportedClass) {
-        // retrieve a list of parsers which support the supportedClass-input  
+        // retrieve a list of parsers which support the supportedClass-input
         List<InputHandler> foundParsers = new ArrayList<>();
-        
+
         Set<Format> result = new HashSet<>();
-        
+
         for (InputHandler parser : parserRepository.getInputHandlers()) {
             Set<Class<? extends Data<?>>> supportedClasses = parser.getSupportedBindings();
             for (Class< ? > clazz : supportedClasses) {

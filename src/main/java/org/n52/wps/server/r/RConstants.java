@@ -31,7 +31,7 @@ package org.n52.wps.server.r;
 import org.springframework.http.MediaType;
 
 /**
- * 
+ *
  * @author Daniel Nüst
  *
  */

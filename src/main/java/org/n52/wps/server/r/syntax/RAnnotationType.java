@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * Describes each annotation type considering attributes, their order and behavior
- * 
+ *
  */
 public enum RAnnotationType {
 
@@ -93,8 +93,9 @@ public enum RAnnotationType {
 
     public RAttribute getAttribute(String key) throws RAnnotationException {
         String k = key.toLowerCase();
-        if (this.attributeLut.containsKey(k))
+        if (this.attributeLut.containsKey(k)){
             return this.attributeLut.get(k);
+        }
 
         throw new RAnnotationException("Annotation " + this + " (" + this.startKey
                 + " ...) cannot contain a parameter named '" + key + "'.");
@@ -108,20 +109,17 @@ public enum RAnnotationType {
     /**
      * Checks if Annotation content is valid for process description and adds attributes / standard values if
      * necessary
-     * 
-     * @param key
-     *        / value pairs given in the annotation from RSkript
-     * @return key / value pairs ready for process description
-     * @throws IOException
+     *
      */
     public void validateDescription(RAnnotation rAnnotation) throws RAnnotationException {
         // check minOccurs Attribute and default value:
         try {
             if (rAnnotation.containsKey(RAttribute.MIN_OCCURS)) {
                 Integer min = Integer.parseInt(rAnnotation.getStringValue(RAttribute.MIN_OCCURS));
-                if (rAnnotation.containsKey(RAttribute.DEFAULT_VALUE) && !min.equals(0))
+                if (rAnnotation.containsKey(RAttribute.DEFAULT_VALUE) && !min.equals(0)){
                     throw new RAnnotationException("Default value found but minimum required number of occurrences is not '0' in annotation "
                             + this);
+                }
             }
         }
         catch (NumberFormatException e) {

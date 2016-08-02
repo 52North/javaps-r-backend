@@ -31,9 +31,7 @@ package org.n52.wps.server.r.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import javax.annotation.PostConstruct;
 
-import org.n52.javaps.io.literal.LiteralData;
 import org.n52.javaps.io.literal.xsd.AbstractXSDLiteralType;
 import org.n52.javaps.io.literal.xsd.LiteralBooleanType;
 import org.n52.javaps.io.literal.xsd.LiteralDoubleType;
@@ -76,14 +74,15 @@ public class RDataTypeRegistry {
 
         // put process key, i.e. mimetype or xml-notation for literal type, as
         // alternative key (alias) into Hashmap:
-        if ( !containsKey(type.getMimeType()))
+        if ( !containsKey(type.getMimeType())){
             this.rDataTypeAlias.put(type.getMimeType(), type);
-        else
+        } else{
             LOGGER.warn("Doubled definition of data type-key for notation: "
                     + type.getMimeType()
                     + "\n"
                     + "only the first definition will be used for this key.+"
                     + "(That might be the usual case if more than one annotation type key refer to one WPS-mimetype with different data handlers)");
+        }
     }
 
     public boolean containsKey(String key) {
@@ -95,17 +94,20 @@ public class RDataTypeRegistry {
      *
      * @param key
      *        process keys and self defined short keys are recognized as dataType keys
-     * @return
-     * @throws RAnnotationException
+     * @return RTypeDefinition
+     * @throws RAnnotationException in case the data type is invalid
      */
     public RTypeDefinition getType(String key) throws RAnnotationException {
         RTypeDefinition out = this.rDataTypeKeys.get(key);
-        if (out == null)
+        if (out == null){
             out = this.rDataTypeAlias.get(key);
-        if (out == null)
+        }
+        if (out == null){
             out = this.customDataTypes.get(key);
-        if (out == null)
+        }
+        if (out == null){
             throw new RAnnotationException("Invalid datatype key for R script annotations: " + key);
+        }
 
         return out;
     }
@@ -207,17 +209,17 @@ public class RDataTypeRegistry {
         this.customDataTypes.put(type.getKey(), type);
         LOGGER.debug("New custom data type registered: {}", type);
     }
-    
+
     public static AbstractXSDLiteralType<?> getAbstractXSDLiteralTypeforLiteralRDataType(String dataType){
-        
+
         switch (dataType) {
-        case "xs:string":            
+        case "xs:string":
             return new LiteralStringType();
-        case "xs:integer":            
+        case "xs:integer":
             return new LiteralIntegerType();
-        case "xs:double":            
+        case "xs:double":
             return new LiteralDoubleType();
-        case "xs:boolean":            
+        case "xs:boolean":
             return new LiteralBooleanType();
         default:
             break;

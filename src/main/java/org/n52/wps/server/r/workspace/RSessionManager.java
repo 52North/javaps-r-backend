@@ -161,10 +161,11 @@ public class RSessionManager {
         Collection<File> utils = config.getUtilsFiles();
         log.debug("Loading {} utils files: {}", utils.size(), Arrays.toString(utils.toArray()));
         for (File file : utils) {
-            if (file.exists())
+            if (file.exists()){
                 executor.executeScript(file, this.connection);
-            else
+            } else{
                 log.warn("Configured script file does not longer exist: {}", file);
+            }
         }
 
         RLogger.log(connection, "workspace content after loading utility scripts:");
@@ -227,7 +228,7 @@ public class RSessionManager {
 
     /**
      * Retrieves warnings that occured during the last execution of a script
-     * 
+     *
      * Note that the warnings()-method is not reliable for Rserve because it does not return warnings in most
      * cases. Therefore a specific warnings function is used to retrieve the warnings.
      */
@@ -248,8 +249,9 @@ public class RSessionManager {
             }
         }
 
-        if (warnings.length() < 1)
+        if (warnings.length() < 1){
             return NO_WARNINGS_MESSAGE;
+        }
         return warnings.toString();
     }
 
@@ -283,10 +285,11 @@ public class RSessionManager {
         log.debug("Loading {} imports: {}", imports.size(), Arrays.toString(imports.toArray()));
 
         for (File file : imports) {
-            if (file.exists())
+            if (file.exists()){
                 executor.executeScript(file, this.connection);
-            else
+            } else{
                 log.warn("Imported script does not exist: {}", file);
+            }
         }
 
         RLogger.log(connection, "workspace content after loading imports:");

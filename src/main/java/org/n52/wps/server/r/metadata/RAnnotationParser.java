@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 
 import javax.inject.Inject;
 
+import org.apache.xmlbeans.XmlOptions;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.wps.description.ProcessDescription;
 import org.n52.wps.server.r.R_Config;
@@ -60,7 +61,6 @@ import org.n52.wps.server.r.syntax.ResourceAnnotation;
 import org.n52.wps.server.r.util.ResourceUrlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -84,7 +84,7 @@ public class RAnnotationParser {
 
     @Inject
     private RProcessDescriptionCreator descriptionCreator;
-    
+
     @Inject
     private ResourceUrlGenerator urlGenerator;
 
@@ -125,28 +125,28 @@ public class RAnnotationParser {
      */
     public Collection<Exception> validateScriptWithErrors(InputStream script, String identifier) throws RAnnotationException {
         ArrayList<Exception> validationErrors = new ArrayList<>();
-//        XmlOptions validationOptions = new XmlOptions();
-//        validationOptions.setErrorListener(validationErrors);
-//
-//        // try to parse annotations:
-//        List<RAnnotation> annotations = null;
-//        try {
-//            annotations = parse(script, true);
-//        } catch (RAnnotationException e) {
-//            LOGGER.error("Error parsing annotations during validation", e);
-//            validationErrors.add(e);
-//        }
-//
-//        if (annotations != null) {
-//            if (annotations.isEmpty()) {
-//                validationErrors.add(new RAnnotationException("No annotations found"));
-//            } else {
-//                // check for exactly one description
-//                hasOneDescription(identifier, validationErrors, validationOptions, annotations);
-//
-//                validateMetadataAnnotations(validationErrors, annotations, identifier);
-//            }
-//        }
+        XmlOptions validationOptions = new XmlOptions();
+        validationOptions.setErrorListener(validationErrors);
+
+        // try to parse annotations:
+        List<RAnnotation> annotations = null;
+        try {
+            annotations = parse(script, true);
+        } catch (RAnnotationException e) {
+            LOGGER.error("Error parsing annotations during validation", e);
+            validationErrors.add(e);
+        }
+
+        if (annotations != null) {
+            if (annotations.isEmpty()) {
+                validationErrors.add(new RAnnotationException("No annotations found"));
+            } else {
+                // check for exactly one description
+                hasOneDescription(identifier, validationErrors, annotations);
+
+                validateMetadataAnnotations(validationErrors, annotations, identifier);
+            }
+        }
 
         return validationErrors;
     }
@@ -208,6 +208,7 @@ public class RAnnotationParser {
         }
     }
 
+    //TODO check how process description could be validated
     private void hasOneDescription(String identifier,
             ArrayList<Exception> validationErrors,
             List<RAnnotation> annotations) throws RAnnotationException {

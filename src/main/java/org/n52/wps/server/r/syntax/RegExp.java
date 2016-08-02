@@ -30,9 +30,9 @@ package org.n52.wps.server.r.syntax;
 
 /**
  * Contains regular expressions used by WPS4R
- * 
+ *
  * @author Matthias Hinz
- * 
+ *
  */
 public class RegExp {
 

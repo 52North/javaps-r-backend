@@ -73,7 +73,7 @@ public class RExecutor {
     }
 
     /**
-     * 
+     *
      * @param script
      *        R input script
      * @param rCon
@@ -91,8 +91,9 @@ public class RExecutor {
         boolean success = true;
 
         BufferedReader fr = new BufferedReader(new InputStreamReader(rScriptStream));
-        if ( !fr.ready())
+        if ( !fr.ready()){
             return false;
+        }
 
         // reading script:
         StringBuilder scriptExecutionString = new StringBuilder();
@@ -109,21 +110,26 @@ public class RExecutor {
 
         while (fr.ready()) {
             String line = fr.readLine();
-            if (line.isEmpty())
+            if (line.isEmpty()){
                 continue;
-
-            if (line.contains(RegExp.WPS_OFF) && line.contains(RegExp.WPS_ON))
-                throw new RAnnotationException("Invalid R-script: Only one wps.on; / wps.off; expression per line!");
-
-            if (line.contains(RegExp.WPS_OFF))
-                wpsoff_state = true;
-            else if (line.contains(RegExp.WPS_ON))
-                wpsoff_state = false;
-            else if (wpsoff_state) {
-                if (appendSwitchedOffCommandsAsComments)
-                    line = "# (ignored by " + RegExp.WPS_OFF + ") " + line;
             }
-            else {               
+
+            if (line.contains(RegExp.WPS_OFF) && line.contains(RegExp.WPS_ON)){
+                throw new RAnnotationException("Invalid R-script: Only one wps.on; / wps.off; expression per line!");
+            }
+
+            if (line.contains(RegExp.WPS_OFF)){
+                wpsoff_state = true;
+            }
+            else if (line.contains(RegExp.WPS_ON)){
+                wpsoff_state = false;
+            }
+            else if (wpsoff_state) {
+                if (appendSwitchedOffCommandsAsComments){
+                    line = "# (ignored by " + RegExp.WPS_OFF + ") " + line;
+                }
+            }
+            else {
                 // not switched off:
                 if (line.trim().startsWith(COMMENT_CHARACTER) && line.contains("updateStatus")) {
                     //remove comment in front of updateStatus call for execution
@@ -131,16 +137,18 @@ public class RExecutor {
                     scriptExecutionString.append(line);
                     scriptExecutionString.append("\n");
                 }else if (line.trim().startsWith(COMMENT_CHARACTER)) {
-                    if (appendComments)
+                    if (appendComments){
                         scriptExecutionString.append(line);
+                    }
                 }
                 else {
                     // actually append the line
-                    if (line.contains("setwd("))
+                    if (line.contains("setwd(")){
                         log.warn("The running R script contains a call to \"setwd(...)\". "
                                 + "This may cause runtime-errors and unexpected behaviour of WPS4R. "
                                 + "It is strongly advised to not use this function in process scripts.");
-                    
+                    }
+
                     scriptExecutionString.append(line);
                     scriptExecutionString.append("\n");
                 }
@@ -174,8 +182,9 @@ public class RExecutor {
         scriptExecutionString.append(" <- as.character(error)");
         scriptExecutionString.append("\n");
 
-        if (this.debugScript && log.isDebugEnabled())
+        if (this.debugScript && log.isDebugEnabled()){
             log.debug(scriptExecutionString.toString());
+        }
 
         // call the actual script here
         rCon.eval(scriptExecutionString.toString());
@@ -187,7 +196,7 @@ public class RExecutor {
                         + rCon.eval(RWPSSessionVariables.ERROR_MESSAGE).asString();
                 log.error(message);
                 success = false;
-                throw new NoApplicableCodeException();//TODO was REMOTE_COMPUTATION_ERROR code 
+                throw new NoApplicableCodeException();//TODO was REMOTE_COMPUTATION_ERROR code
             }
         }
         catch (REXPMismatchException e) {

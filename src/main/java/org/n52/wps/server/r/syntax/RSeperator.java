@@ -30,7 +30,7 @@ package org.n52.wps.server.r.syntax;
 
 /**
  * Separators used in annotations
- * 
+ *
  * @author Matthias Hinz
  */
 public enum RSeperator {

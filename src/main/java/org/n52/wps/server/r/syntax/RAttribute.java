@@ -30,9 +30,9 @@ package org.n52.wps.server.r.syntax;
 
 /**
  * attributes used in Annotations
- * 
+ *
  * @author Matthias Hinz
- * 
+ *
  */
 public enum RAttribute {
 

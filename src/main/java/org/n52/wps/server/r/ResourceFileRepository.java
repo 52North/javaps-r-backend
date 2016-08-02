@@ -47,8 +47,6 @@ import org.n52.wps.server.r.syntax.RAttribute;
 import org.n52.wps.server.r.syntax.ResourceAnnotation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -59,11 +57,10 @@ import com.google.common.collect.Sets;
 
 /**
  * Management class to store and retrieve resources used by scripts.
- * 
+ *
  * @author Daniel Nüst
  *
  */
-@Repository
 public class ResourceFileRepository {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ResourceFileRepository.class);
@@ -82,10 +79,11 @@ public class ResourceFileRepository {
 
     private boolean addResource(R_Resource res, Path resourceDir, Path fullPath) {
         LOGGER.debug("Found resource {} in directory {}, full path: ", res, resourceDir, fullPath);
-        if ( !resourcePaths.containsKey(res))
+        if ( !resourcePaths.containsKey(res)){
             this.resourcePaths.put(res, fullPath);
-        else
+        } else{
             LOGGER.trace("Resource already stored '{}': {}", res, fullPath);
+        }
         this.processToResourcesMap.put(res.getProcessId(), res);
 
         return true;
@@ -100,9 +98,10 @@ public class ResourceFileRepository {
     }
 
     public Collection<R_Resource> getR_Resourcce(Path path) throws OwsExceptionReport {
-        if ( !Files.exists(path))
+        if ( !Files.exists(path)){
 //            throw new ExceptionReport("Resource file not found: " + path, ExceptionReport.NO_APPLICABLE_CODE);
             throw new NoApplicableCodeException();
+        }
 
         ListMultimap<Path, R_Resource> inverse = Multimaps.invertFrom(Multimaps.forMap(resourcePaths),
                                                                       ArrayListMultimap.<Path, R_Resource> create());
@@ -141,15 +140,16 @@ public class ResourceFileRepository {
 
     /**
      * register all resources from the annotation
-     * 
+     *
      * @param rAnnotation
      * @return true if all resources could be found in the file system and are subsequently available in this
      *         repo, false otherwise.
      */
     @SuppressWarnings("unchecked")
     public boolean registerResources(RAnnotation rAnnotation) {
-        if ( ! (rAnnotation instanceof ResourceAnnotation))
+        if ( ! (rAnnotation instanceof ResourceAnnotation)){
             return false;
+        }
 
         Collection<R_Resource> resources = null;
         try {
@@ -162,8 +162,9 @@ public class ResourceFileRepository {
 
         boolean allRegistered = true;
         for (R_Resource res : resources) {
-            if (resourcePaths.containsKey(res))
+            if (resourcePaths.containsKey(res)){
                 LOGGER.debug("Resource already registered, (quietly) not doing it again: {}", res);
+            }
             else {
                 LOGGER.debug("Registering resource {} based on directories {}",
                              res,
@@ -196,9 +197,9 @@ public class ResourceFileRepository {
 
     @SuppressWarnings("unchecked")
     public boolean registerImport(RAnnotation rAnnotation, Path scriptDirectory) {
-        if ( ! (rAnnotation instanceof ImportAnnotation))
+        if ( ! (rAnnotation instanceof ImportAnnotation)){
             return false;
-
+        }
         Collection<R_Resource> imports = null;
         try {
             imports = (Collection<R_Resource>) rAnnotation.getObjectValue(RAttribute.NAMED_LIST);
@@ -210,13 +211,14 @@ public class ResourceFileRepository {
 
         boolean allRegistered = true;
         for (R_Resource imprts : imports) {
-            if (resourcePaths.containsKey(imprts))
+            if (resourcePaths.containsKey(imprts)){
                 LOGGER.debug("Import already registered, (quietly) not doing it again: {}", imprts);
+            }
             else {
                 // look in both the resource directories and the directory of the current file
                 Set<Path> currentLookInDirectories = Sets.newHashSet(resourceDirectories);
                 currentLookInDirectories.add(scriptDirectory);
-                
+
                 LOGGER.debug("Registering import {} as resource based on directories {}",
                              imprts,
                              Arrays.toString(currentLookInDirectories.toArray()));

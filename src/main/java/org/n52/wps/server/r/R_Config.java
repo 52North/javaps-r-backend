@@ -102,14 +102,14 @@ public class R_Config implements ConfigurableClass{
     private static final String scriptDownloadEnabledKey = "R_enableScriptDownload";
     private static final String sessionInfoDownloadEnabledKey = "R_enableSessionInfoDownload";
     private static final String rServeUtilsScriptDirectoryKey = "R_utilsScriptDirectory";
-    
+
     private Boolean enableBatchStart;
     private String datatypeConfig;
     private String wdStrategy;
     private String wdName;
     private String resourceDirectory;
     private String scriptDirectory;
-    private String rServeHost;    
+    private String rServeHost;
     private int rServePort;
     private String rServeUser;
     private String rServePassword;
@@ -120,15 +120,15 @@ public class R_Config implements ConfigurableClass{
     private boolean importDownloadEnabled;
     private boolean scriptDownloadEnabled;
     private boolean sessionInfoDownloadEnabled;
-    
+
     public R_Config() {
         this.starter = new RStarter();
         this.connector = new RConnector(starter);
 
         JsonNode propertyNode = getProperties().get("properties");
-        
+
         if(propertyNode != null){
-         
+
             try {
                 enableBatchStart = propertyNode.get(enableBatchStartKey).asBoolean();
                 datatypeConfig = propertyNode.get(datatypeConfigKey).asText();
@@ -146,16 +146,16 @@ public class R_Config implements ConfigurableClass{
                 resourceDownloadEnabled = propertyNode.get(resourceDownloadEnabledKey).asBoolean();
                 importDownloadEnabled = propertyNode.get(importDownloadEnabledKey).asBoolean();
                 scriptDownloadEnabled = propertyNode.get(scriptDownloadEnabledKey).asBoolean();
-                sessionInfoDownloadEnabled = propertyNode.get(sessionInfoDownloadEnabledKey).asBoolean();    
+                sessionInfoDownloadEnabled = propertyNode.get(sessionInfoDownloadEnabledKey).asBoolean();
             } catch (Exception e) {
                 LOGGER.error("Could not parse properties for class {}", this.getClass().getName());
                 LOGGER.error(e.getMessage());
             }
-            
+
         }else{
             LOGGER.error("Could not parse properties for class {}", this.getClass().getName());
         }
-        
+
         LOGGER.info("NEW {}", this);
     }
 
@@ -181,8 +181,9 @@ public class R_Config implements ConfigurableClass{
         String[] dirs = resourceDirConfigParam.split(DIR_DELIMITER);
         for (String s : dirs) {
             Path dir = Paths.get(s);
-            if ( !dir.isAbsolute())
+            if ( !dir.isAbsolute()){
                 dir = getBaseDir().resolve(s);
+            }
 
             resourceDirectories.add(dir);
             LOGGER.debug("Found resource directory configured in config variable: {}", dir);
@@ -244,7 +245,7 @@ public class R_Config implements ConfigurableClass{
         return rServeUser;
     }
 
-    private int getRServePort() {        
+    private int getRServePort() {
         return rServePort;
     }
 
@@ -253,7 +254,7 @@ public class R_Config implements ConfigurableClass{
     }
 
     public boolean getEnableBatchStart() {
-    	return enableBatchStart;
+        return enableBatchStart;
     }
 
     public URL getProcessDescriptionURL(String processWKN) {
@@ -263,7 +264,7 @@ public class R_Config implements ConfigurableClass{
         }
         catch (MalformedURLException e) {
             LOGGER.error("Could not create URL for process {}", processWKN, e);
-            return null;        
+            return null;
         }
     }
 
@@ -286,8 +287,9 @@ public class R_Config implements ConfigurableClass{
                                  Arrays.toString(files.toArray()));
                 }
             }
-            else
+            else{
                 LOGGER.error("Could not load utils directory variable from config, not loading any utils files!");
+            }
         }
 
         return utilsFiles;
@@ -306,10 +308,10 @@ public class R_Config implements ConfigurableClass{
         LOGGER.debug("Loading util files from {}", s);
 
         Path p = Paths.get(s);
-        if ( !baseDir.isAbsolute())
+        if ( !baseDir.isAbsolute()){
             throw new RuntimeException(String.format("The given basedir (%s) is not absolute, cannot resolve path %s.",
-                                                     baseDir,
-                                                     p));
+                                                     baseDir, p));
+        }
 
         ArrayList<File> foundFiles = new ArrayList<>();
         File f = null;
@@ -349,8 +351,9 @@ public class R_Config implements ConfigurableClass{
                 File[] files = f.listFiles(rFileFilter);
                 foundFiles.addAll(Arrays.asList(files));
             }
-            else
+            else{
                 LOGGER.warn("Configured utils directory does not exist: {}", p);
+            }
         }
 
         LOGGER.debug("Found {} util files in directory configured as '{}' at {}", foundFiles.size(), p, f);

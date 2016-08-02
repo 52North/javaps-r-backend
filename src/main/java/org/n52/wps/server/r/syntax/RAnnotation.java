@@ -43,11 +43,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Defines Syntax and Semantics for Annotations in R Skripts
  *
- * Syntax in (raw) BNF: <RAnnotation> ::= <StartKey> <AttributeSequence> <EndKey> <StartKey> <Attributequence>
- * ::= <RAnnotationTypeInstance>.getStartKey() <RAnnotationTypeInstance>.getAttributeSequence() <EndKey> ::=
- * RSeparator.ANNOTATION_END.getKey() <AttributeSequence> ::= {<RAttributeInstance>.getKey()
- * ATRIBUTE_VALUE_SEPARATOR} <Attributevalue> {ATTRIBUTE_SEPARATOR <RAttributeSequence>}
- *
  * @author Matthias Hinz
  */
 public class RAnnotation {
@@ -91,12 +86,15 @@ public class RAnnotation {
     public Object getObjectValue(RAttribute attr) throws RAnnotationException {
         Object out = this.attributeHash.get(attr);
 
-        if (out == null && attr.getDefValue() != null)
+        if (out == null && attr.getDefValue() != null){
             out = attr.getDefValue();
-        else if (attr == RAttribute.ENCODING)
+        }
+        else if (attr == RAttribute.ENCODING){
             return getRDataType().getEncoding();
-        if (attr == RAttribute.SCHEMA)
+        }
+        if (attr == RAttribute.SCHEMA){
             return getRDataType().getSchema();
+        }
         return out;
     }
 
@@ -108,8 +106,9 @@ public class RAnnotation {
      */
     public String getStringValue(RAttribute attr) throws RAnnotationException {
         Object value = getObjectValue(attr);
-        if (value == null)
+        if (value == null){
             return null;
+        }
 
         return value.toString();
     }
@@ -143,17 +142,17 @@ public class RAnnotation {
                                                             RAttribute attribute,
                                                             String value) throws RAnnotationException {
         Iterator<RAnnotation> iterator = filterAnnotations(annotations, null, attribute, value).iterator();
-        if (iterator.hasNext())
+        if (iterator.hasNext()){
             return iterator.next();
-
+        }
         return null;
     }
 
     public static RAnnotation filterFirstMatchingAnnotation(List<RAnnotation> annotations, RAnnotationType type) throws RAnnotationException {
         Iterator<RAnnotation> iterator = filterAnnotations(annotations, type, null, null).iterator();
-        if (iterator.hasNext())
+        if (iterator.hasNext()){
             return iterator.next();
-
+        }
         return null;
     }
 
@@ -204,8 +203,9 @@ public class RAnnotation {
     public String getProcessDescriptionType() throws RAnnotationException {
         String type = getStringValue(RAttribute.TYPE);
         RTypeDefinition rdt = dataTypeRegistry.getType(type);
-        if (rdt != null)
+        if (rdt != null){
             return rdt.getMimeType();
+        }
 
         return null;
     }

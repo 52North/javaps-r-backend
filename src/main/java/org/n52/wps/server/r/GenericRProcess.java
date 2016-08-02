@@ -99,15 +99,15 @@ public class GenericRProcess extends AbstractAlgorithm {
     private final ResourceUrlGenerator urlGenerator;
 
     private Thread updateThread;
-    
+
     private boolean stopUpdateThread = false;
-    
+
     private long lastStatusUpdate = 0;
-    
+
     private String wkn;
-    
+
     private RProcessDescriptionCreator creator;
-    
+
     public GenericRProcess(String wellKnownName, R_Config config, RDataTypeRegistry dataTypeRegistry, ResourceUrlGenerator urlGenerator, ScriptFileRepository scriptRepo, RAnnotationParser parser, RProcessDescriptionCreator creator) {
         this.wkn = wellKnownName;
         this.config = config;
@@ -178,7 +178,7 @@ public class GenericRProcess extends AbstractAlgorithm {
                     + wkn + "': " + e.getMessage(), e);
         }
     }
-    
+
     String getWellKnownName() {
         return wkn;
     }
@@ -201,93 +201,93 @@ public class GenericRProcess extends AbstractAlgorithm {
     }
 
     private void startUpdateListener(final File tmpStatusFile){
-        
+
         updateThread = new Thread("WPS4R-update-thread"){
-          
+
             @Override
             public void run() {
-                
-                while(true){                    
+
+                while(true){
                     if(stopUpdateThread){
                         break;
                     }
-                    
+
                     try {
                         sleep(1000);
                     } catch (InterruptedException e) {
                         log.error("InterruptedException while trying to sleep WPS4R-update-thread.", e);
                     }
-                    
+
                     //lock exists continue
                     if(new File(tmpStatusFile.getAbsolutePath().concat(R_Config.LOCK_SUFFIX)).exists()){
                         continue;
                     }
-                    
+
                     try {
                         String updateMessage = readTmpStatusFile(tmpStatusFile);
-                        
+
                         if(updateMessage == null || updateMessage.isEmpty()){
                             continue;
                         }
-                        
+
                         //try parsing status as integer and update process status if successful
                         try{
-                            
+
                             Integer percentage = Integer.parseInt(updateMessage.trim());
-                            
+
                             update(percentage);
-                            
+
                         }catch(NumberFormatException e){
                             log.info("Status could not be parsed to integer: " + updateMessage);
-                            
+
                             //update status with message (works only for WPS 1.0)
                             update(updateMessage);
                         }
-                        
+
                     } catch (IOException e) {
                         log.error("Could not read status from file: " + tmpStatusFile.getAbsolutePath(), e);
                     }
-                                        
+
                 }
-                
+
             }
-            
+
         };
-        
+
         updateThread.start();
     }
-    
+
     private String readTmpStatusFile(File tmpStatusFile) throws IOException{
-        
+
         String content = "";
-        
+
         long statusFileModified = tmpStatusFile.lastModified();
-               
+
         log.debug("File modified: " + (statusFileModified > lastStatusUpdate));
-        
+
         if(lastStatusUpdate == 0 || statusFileModified > lastStatusUpdate){
-            
+
             BufferedReader bufferedReader = new BufferedReader(new FileReader(tmpStatusFile));
-            
+
             String line = "";
-            
+
             while((line = bufferedReader.readLine()) != null){
                 content = content.concat(line + "\n");
             }
-            
+
             bufferedReader.close();
-            
-            lastStatusUpdate = statusFileModified;            
+
+            lastStatusUpdate = statusFileModified;
         }
-        
+
         return content;
     }
 
     @Override
-    public void execute(ProcessExecutionContext context) throws ExecutionException {        
+    public void execute(ProcessExecutionContext context) throws ExecutionException {
 
         ProcessInputs inputData = context.getInputs();
-        
+
         log.info("Running {} \n\tInput data: {}", this.toString(), Arrays.toString(inputData.entrySet().toArray()));
 
         FilteredRConnection rCon = null;
@@ -331,46 +331,47 @@ public class GenericRProcess extends AbstractAlgorithm {
             }
             session.loadImportedScripts(executor, imports);
 
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()){
                 workspace.saveImage("preExecution");
+            }
 
             //add simple status logging functionality
             //log status via updateStatus-method to temp file that is created in GenericRProcess class
-            //temp file is read by process if changed and the contents are to the update-method of the ISubject interface      
-            
+            //temp file is read by process if changed and the contents are to the update-method of the ISubject interface
+
             String script = "tmpStatusFile <- tempfile()";
             rCon.voidEval(script);
-            
+
             File tmpStatusFile;
-            
+
             REXP tmpStatusFileREXP = rCon.eval("tmpStatusFile");
-            
+
             if(tmpStatusFileREXP.isString()){
                     try {
                         tmpStatusFile = new File(tmpStatusFileREXP.asString());
-                        
+
                         StringBuilder statusScriptString = new StringBuilder();
-                        
+
                         statusScriptString.append("writelock = function() {\n  ");
                         statusScriptString.append("file.create(paste0(tmpStatusFile, \"" + R_Config.LOCK_SUFFIX + "\"))\n");
                         statusScriptString.append("}\n  ");
-                        
+
                         statusScriptString.append("removelock = function(i) {\n  ");
                         statusScriptString.append("file.remove(paste0(tmpStatusFile, \"" + R_Config.LOCK_SUFFIX + "\"))\n");
                         statusScriptString.append("}\n  ");
-                        
+
                         statusScriptString.append("updateStatus = function(i) {\n  ");
                         statusScriptString.append("writelock()\n  ");
                         statusScriptString.append("write(as.character(i),file=tmpStatusFile,append=F)\n");
                         statusScriptString.append("removelock()\n");
                         statusScriptString.append("}\n  ");
-                        
+
                         rCon.voidEval(statusScriptString.toString());
-                        
+
                         tmpStatusFile.createNewFile();
-                        
+
                         startUpdateListener(tmpStatusFile);
-                        
+
                     } catch (REXPMismatchException e) {
                         log.debug("Could not parse String generated by R method tempfile() to Java File. No status updates are possible.", e);
                     }
@@ -378,9 +379,10 @@ public class GenericRProcess extends AbstractAlgorithm {
 
             File scriptFile = scriptRepo.getScriptFile(getWellKnownName());
             boolean success = executor.executeScript(scriptFile, rCon);
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()){
                 workspace.saveImage("afterExecution");
-            
+            }
+
             HashMap<String, Data<?>> result = null;
             if (success) {
                 List<RAnnotation> outAnnotations = RAnnotation.filterAnnotations(this.annotations,
@@ -400,9 +402,9 @@ public class GenericRProcess extends AbstractAlgorithm {
             session.cleanUp();
             workspace.cleanUpInR(originalWorkDir);
             workspace.cleanUpWithWPS();
-            
-            for (String id : result.keySet()) {               
-                 context.getOutputs().put(new OwsCode(id), result.get(id));                
+
+            for (String id : result.keySet()) {
+                 context.getOutputs().put(new OwsCode(id), result.get(id));
             }
 
 //            return result;
@@ -450,10 +452,11 @@ public class GenericRProcess extends AbstractAlgorithm {
                         throw new ExecutionException(e);
                     }
                 }
-                else
+                else{
                     rCon.close();
+                }
             }
-            
+
             if(updateThread != null && updateThread.isAlive()){
                 stopUpdateThread = true;
             }
@@ -462,8 +465,8 @@ public class GenericRProcess extends AbstractAlgorithm {
 
     @Override
     protected TypedProcessDescription createDescription() {
-        
+
         return initializeDescription();
     }
-    
+
 }

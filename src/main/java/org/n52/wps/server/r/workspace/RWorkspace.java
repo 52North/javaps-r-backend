@@ -172,15 +172,16 @@ public class RWorkspace {
                         REXP eval = connection.eval("(unlink(\"" + wdToDelete + "\", recursive=TRUE))");
 
                         int result = eval.asInteger();
-                        if (result == 0)
+                        if (result == 0){
                             return true;
+                        }
                         return false;
                     }
 
                     this.temporarilyPreventingRWorkingDirectoryFromDelete = false;
-                }
-                else
+                } else{
                     log.warn("Unexpected R workdirectory at end of R session, check the R sript for unwanted workdirectory changes.");
+                }
             }
             catch (RserveException e) {
                 log.error("Could not reset the work directory.", e);
@@ -210,14 +211,14 @@ public class RWorkspace {
     /**
      * Sets the R working directory according to the "R_Work_Dir" configuration parameter. 4 cases are
      * supported: 'default', 'preset', 'temporary' and 'custom'.
-     * 
+     *
      * Do not confuse the R working directory with the temporary WPS working directory (this.currentworkdir)!
      * R and WPS use the same directory under default configuration, with Rserve on localhost, but running R
      * on a remote machine requires separate working directories for WPS and R.
-     * 
+     *
      * @param connection
      * @param workDirName
-     * 
+     *
      * @return the new working directory, which is already set.
      * @throws org.rosuda.REngine.REXPMismatchException
      */
@@ -237,9 +238,9 @@ public class RWorkspace {
         if (strategyName == null || strategyName.equals("")) {
             log.error("Strategy is not defined: {}. Falling back to default: {}", DEFAULT_STRATEGY);
             strategy = DEFAULT_STRATEGY;
-        }
-        else
+        } else{
             strategy = CreationStrategy.valueOf(strategyName.trim().toUpperCase());
+        }
 
 
         // if one of these strategies is used, then Java must be able to write in the folder and we need the
@@ -247,18 +248,20 @@ public class RWorkspace {
         String workDirNameFullPath = null;
         if (strategy.equals(CreationStrategy.MANUALBASEDIR) || strategy.equals(CreationStrategy.MANUAL)) {
             try {
-                if (workDirName == null)
+                if (workDirName == null){
 //                    throw new ExceptionReport("Error setting working directory with strategy '" + strategy +  "': workDirName is 'null'!", "Inconsistent property");
                       throw new NoApplicableCodeException();
+                }
 
                 File testFile = new File(workDirName);
                 if ( !testFile.isAbsolute()) {
                     testFile = basedir.resolve(path).toFile();
                 }
-                if ( !testFile.exists())
+                if ( !testFile.exists()){
 //                    throw new ExceptionReport("Invalid work dir name \"" + workDirName + "\" and full path \""
 //                            + testFile.getPath() + "\". It denotes a non-existent path.", "Inconsistent property");
                       throw new NoApplicableCodeException();
+                }
 
                 workDirNameFullPath = testFile.getAbsolutePath();
                 log.debug("Manually set work dir name resolved to the full path '{}'", workDirNameFullPath);
@@ -312,8 +315,9 @@ public class RWorkspace {
         }
         else if (strategy.equals(CreationStrategy.MANUAL)) {
             // in the manual strategy, the path is simply used
-            if (workDirName != null && !workDirName.isEmpty())
+            if (workDirName != null && !workDirName.isEmpty()){
                 oldWorkdir = setwd(connection, workDirName);
+            }
             else {
                 log.error("Work directory name is not provided, falling back to default strategy.");
                 return setWorkingDirectory(connection,
@@ -333,8 +337,9 @@ public class RWorkspace {
                 if (f.isDirectory()) {
                     oldWorkdir = createAndSetNewWorkspaceDirectoyInBasePath(f, connection);
                 }
-                else
+                else{
                     isInvalidPath = true;
+                }
 
             }
             else {
@@ -343,8 +348,9 @@ public class RWorkspace {
                 if (isExistingDir) {
                     oldWorkdir = createAndSetNewWorkspaceDirectoyInBasePath(f, connection);
                 }
-                else
+                else{
                     isInvalidPath = true;
+                }
             }
 
             if (isInvalidPath) {
@@ -383,9 +389,9 @@ public class RWorkspace {
         if (this.path != null) {
             File f = new File(this.path);
             files.addAll(Arrays.asList(f.listFiles()));
-        }
-        else
+        } else{
             log.error("The path to the workspace is null, cannot create file list");
+        }
         return files;
     }
 
@@ -393,19 +399,21 @@ public class RWorkspace {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("RWorkspace [deleteRWorkDirectory=").append(deleteRWorkDirectory).append(", ");
-        if (path != null)
+        if (path != null){
             builder.append("path=").append(path).append(", ");
+        }
         builder.append("temporarilyPreventingRWorkingDirectoryFromDelete=").append(temporarilyPreventingRWorkingDirectoryFromDelete).append(", wpsWorkDirIsRWorkDir=").append(wpsWorkDirIsRWorkDir).append(", ");
-        if (basedir != null)
+        if (basedir != null){
             builder.append("basedir=").append(basedir);
+        }
         builder.append("]");
         return builder.toString();
     }
 
     public synchronized void createDirectory(String name, RConnection connection) throws RserveException {
-        if (name.equals(ROOT))
+        if (name.equals(ROOT)){
             return;
-
+        }
         log.debug("Creating directory {} in workspace {}", name, this);
 
         StringBuilder sb = new StringBuilder();
@@ -460,7 +468,7 @@ public class RWorkspace {
     }
 
     /**
-     * 
+     *
      * @param source
      * @param name
      *        can be a path (starting with '.'), but all intermediate folders must exist

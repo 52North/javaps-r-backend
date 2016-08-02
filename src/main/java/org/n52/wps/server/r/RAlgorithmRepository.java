@@ -46,9 +46,6 @@ import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.javaps.algorithm.AlgorithmRepository;
 import org.n52.javaps.algorithm.IAlgorithm;
 import org.n52.javaps.description.TypedProcessDescription;
-import org.n52.javaps.io.InputHandlerRepository;
-import org.n52.javaps.io.OutputHandlerRepository;
-import org.n52.javaps.io.literal.LiteralTypeRepository;
 import org.n52.wps.server.r.data.CustomDataTypeManager;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.info.RProcessInfo;
@@ -104,18 +101,18 @@ public class RAlgorithmRepository implements AlgorithmRepository {
     private ResourceFileRepository resourceRepo;
 
     // needed to autowire before script registration starts
-    @Inject 
+    @Inject
     private CustomDataTypeManager customDataTypes;
 
     @Inject
     private RDataTypeRegistry dataTypeRegistry;
-    
+
     @Inject
     private RProcessDescriptionCreator descriptionCreator;
-    
+
     @Inject
     private ResourceUrlGenerator resourceUrlGenerator;
-    
+
     public RAlgorithmRepository() {
         LOGGER.info("NEW {}", this);
     }
@@ -126,27 +123,18 @@ public class RAlgorithmRepository implements AlgorithmRepository {
          // TODO tests expect a configuration manager injected here
 //        SpringIntegrationHelper.autowireBean(WPSConfig.getInstance());
 
-//        RConfigurationModule configModule = (RConfigurationModule) WPSConfig.getInstance()
-//				.getConfigurationModuleForClass(this.getClass().getName(),
-//						ConfigurationCategory.REPOSITORY);
-//        if (configModule == null || !configModule.isActive()) {
-//            LOGGER.info("*R*AlgorithmRepository is INACTIVE.");
-//        } else {
-//            config.setConfigModule(configModule);
-
             if ( !isRServeAvailable()) {
                 LOGGER.error("RServe is not available, not adding ANY algorithms!");
                 return;
             }
             scriptRepo.registerScriptFiles(config.getScriptFiles());
-//            initializeResourceDirectoriesRepository(configModule);
+            initializeResourceDirectoriesRepository();
             try {
                 intializeAvailableAlgorithms();
             } catch (Exception e) {
                 LOGGER.error("Could not initialize script repository", e);
             }
             LOGGER.info("Initialized *R*AlgorithmRepository");
-//        }
     }
 
      /**
@@ -170,24 +158,24 @@ public class RAlgorithmRepository implements AlgorithmRepository {
         return true;
     }
 
-//    private void initializeResourceDirectoriesRepository() {
-//        Collection<Path> resourceDirectory = config.getResourceDirectories();
-//        resourceDirectory.stream().forEach(rd -> {
-//            resourceRepo.addResourceDirectory(rd);
-//        });
-//    }
+    private void initializeResourceDirectoriesRepository() {
+        Collection<Path> resourceDirectory = config.getResourceDirectories();
+        resourceDirectory.stream().forEach(rd -> {
+            resourceRepo.addResourceDirectory(rd);
+        });
+    }
 
     private void intializeAvailableAlgorithms() throws RAnnotationException, OwsExceptionReport {
-        
+
         Collection<File> scriptFiles = config.getScriptFiles();
-        
+
         for (File file : scriptFiles) {
             String wkn = scriptRepo.getWKNForScriptFile(file);
             String publicId = config.getPublicScriptId(wkn);
             LOGGER.debug("Adding algorithm: {} with publicId: {}", wkn, publicId);
             addAlgorithm(wkn);
         }
-        
+        //TODO check, do we need a means to enable only selected algorithms!?
 //        List<AlgorithmEntry> configuredAlgorithms = configModule.getAlgorithmEntries();
 //        LOGGER.debug("Adding algorithms: {}", configuredAlgorithms.stream()
 //                .map(a -> a.toString())
@@ -384,10 +372,6 @@ public class RAlgorithmRepository implements AlgorithmRepository {
         return Optional.ofNullable(this.rProcesses.get(algorithmName));
     }
 
-//    public Collection<String> getAlgorithmNames() {
-//        return new ArrayList<>(this.rProcesses.keySet());
-//    }
-
     public boolean containsAlgorithm(String processID) {
         return this.rProcesses.containsKey(processID);
     }
@@ -397,7 +381,7 @@ public class RAlgorithmRepository implements AlgorithmRepository {
             LOGGER.debug("Ignore removing of unsupported item '{}' of class '{}'", item, item.getClass());
             return false;
         }
-        
+
         String id;
         if (item instanceof File) {
             File file = (File) item;
@@ -434,10 +418,12 @@ public class RAlgorithmRepository implements AlgorithmRepository {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("RAlgorithmRepository [");
-        if (rProcesses != null)
+        if (rProcesses != null){
             builder.append("algorithm count=").append(rProcesses.size()).append(", ");
-        if (config != null)
+        }
+        if (config != null){
             builder.append("config=").append(config).append(", ");
+        }
         // if (changeManager != null)
         // builder.append("changeManager=").append(changeManager).append(", ");
         // if (repo != null)
@@ -451,8 +437,6 @@ public class RAlgorithmRepository implements AlgorithmRepository {
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override

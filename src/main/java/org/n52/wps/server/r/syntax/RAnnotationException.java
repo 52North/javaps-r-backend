@@ -31,7 +31,7 @@ package org.n52.wps.server.r.syntax;
 import org.slf4j.helpers.MessageFormatter;
 
 /**
- * 
+ *
  * @author Daniel Nüst
  *
  */

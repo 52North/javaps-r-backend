@@ -30,7 +30,7 @@ package org.n52.wps.server.r.util;
 
 /**
  *
- * @author Henning Bredel <h.bredel@52north.org>
+ * @author Henning Bredel h.bredel@52north.org
  */
 public class InvalidRScriptException extends Exception {
 
