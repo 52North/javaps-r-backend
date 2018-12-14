@@ -46,8 +46,8 @@ import java.util.StringTokenizer;
 import javax.inject.Inject;
 
 import org.apache.xmlbeans.XmlOptions;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
-import org.n52.iceland.ogc.wps.description.ProcessDescription;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
+import org.n52.shetland.ogc.wps.description.ProcessDescription;
 import org.n52.wps.server.r.R_Config;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.data.R_Resource;

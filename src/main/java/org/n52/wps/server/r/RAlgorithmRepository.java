@@ -41,11 +41,11 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FilenameUtils;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
-import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.javaps.algorithm.AlgorithmRepository;
 import org.n52.javaps.algorithm.IAlgorithm;
 import org.n52.javaps.description.TypedProcessDescription;
+import org.n52.shetland.ogc.ows.OwsCode;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.data.CustomDataTypeManager;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.info.RProcessInfo;

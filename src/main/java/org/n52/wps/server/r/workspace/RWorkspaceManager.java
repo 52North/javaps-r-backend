@@ -40,12 +40,12 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
-import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.javaps.algorithm.ProcessInputs;
 import org.n52.javaps.io.Data;
 import org.n52.javaps.io.DecodingException;
+import org.n52.shetland.ogc.ows.OwsCode;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.FilteredRConnection;
 import org.n52.wps.server.r.RConstants;
 import org.n52.wps.server.r.RWPSSessionVariables;

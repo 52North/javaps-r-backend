@@ -31,7 +31,7 @@ package org.n52.wps.server.r.data;
 import org.n52.javaps.gt.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.javaps.gt.io.data.binding.complex.GenericFileDataWithGTBinding;
 import org.n52.javaps.io.Data;
-import org.n52.javaps.io.complex.GenericFileDataConstants;
+import org.n52.javaps.io.GenericFileDataConstants;
 import org.n52.javaps.io.data.binding.complex.GenericFileDataBinding;
 import org.n52.javaps.io.literal.LiteralData;
 

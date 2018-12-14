@@ -43,8 +43,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.info.RProcessInfo;
 import org.n52.wps.server.r.metadata.RAnnotationParser;
 import org.n52.wps.server.r.syntax.RAnnotation;

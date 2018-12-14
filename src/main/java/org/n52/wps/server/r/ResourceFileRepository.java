@@ -37,8 +37,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.data.R_Resource;
 import org.n52.wps.server.r.syntax.ImportAnnotation;
 import org.n52.wps.server.r.syntax.RAnnotation;

@@ -35,8 +35,8 @@ import java.nio.file.Path;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.util.InvalidRScriptException;
 import org.n52.wps.server.r.util.ResourceUrlGenerator;
 import org.n52.wps.server.r.workspace.RSessionManager;

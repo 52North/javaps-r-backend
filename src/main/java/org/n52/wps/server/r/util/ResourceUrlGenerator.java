@@ -35,12 +35,11 @@ import java.net.URL;
 
 import javax.inject.Inject;
 
-import org.n52.iceland.config.SettingType;
-import org.n52.iceland.config.SettingsService;
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
-import org.n52.iceland.lifecycle.Constructable;
+import org.n52.faroe.SettingsService;
 import org.n52.iceland.service.ServiceSettings;
+import org.n52.janmayen.lifecycle.Constructable;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.RResource;
 import org.n52.wps.server.r.data.R_Resource;
 import org.slf4j.Logger;

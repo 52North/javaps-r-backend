@@ -45,8 +45,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.javaps.annotation.ConfigurableClass;
 import org.n52.javaps.annotation.Properties;
 import org.n52.wps.server.r.util.RConnector;

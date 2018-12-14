@@ -39,15 +39,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
-import org.n52.iceland.ogc.ows.OwsCode;
 import org.n52.javaps.algorithm.AbstractAlgorithm;
 import org.n52.javaps.algorithm.ExecutionException;
 import org.n52.javaps.algorithm.ProcessInputs;
 import org.n52.javaps.description.TypedProcessDescription;
 import org.n52.javaps.engine.ProcessExecutionContext;
 import org.n52.javaps.io.Data;
+import org.n52.shetland.ogc.ows.OwsCode;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.data.R_Resource;
 import org.n52.wps.server.r.metadata.RAnnotationParser;

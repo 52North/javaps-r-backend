@@ -39,12 +39,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.n52.iceland.exception.ows.NoApplicableCodeException;
-import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.javaps.io.Data;
 import org.n52.javaps.io.GenericFileData;
-import org.n52.javaps.io.complex.GenericFileDataConstants;
+import org.n52.javaps.io.GenericFileDataConstants;
 import org.n52.javaps.io.data.binding.complex.GenericFileDataBinding;
+import org.n52.shetland.ogc.ows.exception.NoApplicableCodeException;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.RWPSSessionVariables;
 import org.n52.wps.server.r.R_Config;
 import org.n52.wps.server.r.data.R_Resource;

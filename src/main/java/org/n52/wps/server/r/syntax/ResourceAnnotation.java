@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.n52.iceland.exception.ows.OwsExceptionReport;
+import org.n52.shetland.ogc.ows.exception.OwsExceptionReport;
 import org.n52.wps.server.r.data.RDataTypeRegistry;
 import org.n52.wps.server.r.data.R_Resource;
 import org.n52.wps.server.r.util.ResourceUrlGenerator;
