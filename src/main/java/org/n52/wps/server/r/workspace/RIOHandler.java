@@ -508,7 +508,12 @@ public class RIOHandler {
             String mimeType = dataTypeRegistry.getType(rType).getMimeType();
 
             GenericFileDataWithGT gfd = new GenericFileDataWithGT(outputFile, mimeType);
-            GTVectorDataBinding gtvec = gfd.getAsGTVectorDataBinding();
+            GTVectorDataBinding gtvec;
+            try {
+                gtvec = gfd.getAsGTVectorDataBinding();
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
             return gtvec;
         }
         else if (iClass.equals(GTRasterDataBinding.class)) {
